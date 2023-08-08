@@ -1,0 +1,31 @@
+version: "3.6"
+services:
+  backend-lang:
+    network_mode: host
+    container_name: zonner_go_app
+    build:
+      dockerfile: Dockerfile
+      context: .
+      args:
+        - GO_PORT=${GO_PORT}
+    restart: always
+    environment:
+      - GO_PORT=${GO_PORT}
+  zonner_graphql_engine:
+    container_name: zonner_graphql_engine
+    network_mode: host
+    image: hasura/graphql-engine:v2.20.0
+    restart: always
+    env_file: .env
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: ${POSTGRES_URI}
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
+      HASURA_GRAPHQL_ENABLE_TELEMETRY: "false"
+      HASURA_GRAPHQL_CORS_DOMAIN: "*"
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: anonymous
+      HASURA_GRAPHQL_SERVER_PORT: ${HASURA_GRAPHQL_SERVER_PORT}
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      ACTION_BASE_URL: ${ACTION_BASE_URL}
+      HASURA_GRAPHQL_JWT_SECRET : '{"type":"HS256","key":"aV1Xjxq3gzIVxppyVUwLL13JrLC2A2ZOlfYeenaXko46zqI89K7N1rK43WNWciH7"}'
+      HASURA_GRAPHQL_ENABLE_REMOTE_SCHEMA_PERMISSIONS: "true"
