@@ -6,11 +6,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go_backend/config"
+	"go_backend/utilities"
 )
 
 type Vendor struct {
 	Email      string `json:"email"`
-	Full_name  string `string:"full_name"`
+	Full_name  string `json:"full_name"`
 	Phone_no   string `json:"phone_no"`
 	Status     bool   `json:"status"`
 	Updated_at string `json:"updated_at"`
@@ -30,6 +31,6 @@ func Test(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
-
+	utilities.User("0948394239")
 	c.JSON(http.StatusOK, data)
 }
