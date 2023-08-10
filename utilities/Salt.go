@@ -1,23 +1,19 @@
 package utilities
 
 import (
-	"crypto/rand"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func GenerateSalt() []byte {
-	salt := make([]byte, 16)
-	_, err := rand.Read(salt)
-	if err != nil {
-		panic(err) 
-	}
-	return salt
-}
 
-func HashPassword(password string, salt []byte) ([]byte, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword(append(salt, []byte(password)...), bcrypt.DefaultCost)
+// var salt = []byte{15, 156, 78, 209, 26, 116, 116, 20, 126, 226, 123, 212, 42, 148, 117, 207}
+func HashPassword(password string) ([]byte, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 8)
 	if err != nil {
 		return nil, err
 	}
 	return hashedPassword, nil
+}
+
+func CompareHashAndPassword(dbPassword, userPassword string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(dbPassword), []byte(userPassword)) == nil
 }

@@ -1,72 +1,104 @@
 package actions
 
 import (
+	"encoding/json"
 	"fmt"
 	"go_backend/utilities" // Replace with the actual utilities package path
 	"net/http"
+	"reflect"
 	"github.com/gin-gonic/gin"
 )
 
 func VendorSignup(c *gin.Context) {
-	var input struct {
-		FullName string
-		Email    string
-		PhoneNo  string
-		Password string
+	var reqBody struct {
+		Input struct {
+			FullName string `json:"full_name"`
+			Email    string `json:"email"`
+			PhoneNo  string `json:"phone_no"`
+			Password string `json:"password"`
+		} `graphql:"input"`
 	}
 
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+	if err := c.ShouldBind(&reqBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request payload"})
 		return
 	}
 
+	fmt.Println("Congratulations", reqBody.Input)
 
-	if input.PhoneNo == "" || input.Password == "" || input.FullName == "" || input.Email == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Please provide all the details"})
+	if reqBody.Input.PhoneNo == "" || reqBody.Input.Password == "" || reqBody.Input.FullName == "" || reqBody.Input.Email == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Please provide all the data"})
 		return
 	}
 
-	salt := utilities.GenerateSalt()
-
-	hashedPassword, err := utilities.HashPassword(input.Password, salt)
+	hashedPassword, err := utilities.HashPassword(reqBody.Input.Password)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
 
-	vendor, err := utilities.User(input.PhoneNo)
+	vendorResponse, err := utilities.User(reqBody.Input.PhoneNo)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Something went wrong"})
-		return
-	}
-	if vendor != "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Account Already Exists by this Phone Number"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong"})
 		return
 	}
 
-	vendorByEmail, err := utilities.FindVendor(input.Email)
+	type Role struct {
+		RoleName string
+		RoleID   string
+	}
+	type Vendor struct {
+		UserID   string
+		PhoneNo  string
+		Status   bool
+		Password string
+		Role     Role
+	}
+
+	var response Vendor
+
+	if vendorResponse != "" {
+		fmt.Println("hhhhhhhhhhhhhhhhhhhhhhhh")
+		err = json.Unmarshal([]byte(vendorResponse), &response)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		fmt.Println("from Here", response)
+
+		if response.UserID != "" {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "vendor Already Exists"})
+			return
+		}
+	}
+
+	fmt.Println("from above")
+
+	vendorByEmail, err := utilities.FindVendor(reqBody.Input.Email)
+
+	fmt.Println("AM great", vendorByEmail, err)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Something went wrong"})
+		fmt.Println(vendorByEmail)
+		c.JSON(http.StatusBadRequest, gin.H{"message": err})
 		return
 	}
 	if vendorByEmail != "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Your Email is Already Registered"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Your Email is Already Registered"})
 		return
 	}
 
-	vendorID, err := utilities.InsertVendor( input.Email, input.PhoneNo, input.FullName)
+	vendorID, err := utilities.InsertVendor(reqBody.Input.Email, reqBody.Input.PhoneNo, reqBody.Input.FullName)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Something went wrong"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": err})
 		return
 	}
-
-	newVendor, err := utilities.InsertUserPassword(vendorID, string(hashedPassword))
+	user_id := vendorID
+	fmt.Println(reflect.TypeOf(vendorID))  
+	newvendor, err := utilities.InsertUserPassword(user_id, string(hashedPassword))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Something went wrong"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": err})
 		return
 	}
-	fmt.Println("Congratulations :" , newVendor)
+	fmt.Println("Congratulations :", newvendor)
 	c.JSON(http.StatusOK, gin.H{"success": "Account Created Successfully"})
 }
-
-

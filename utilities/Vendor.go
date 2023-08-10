@@ -1,14 +1,17 @@
 package utilities
+
 import (
 	"context"
 	"fmt"
 	"go_backend/config"
 )
+
 type InsertVendorsOneResponse struct {
 	InsertVendorsOne struct {
-		VendorId string `json:"Vendor_id"`
+		VendorId string `graphql:"vendor_id"`
 	} `graphql:"insert_vendors_one(object: {email: $email, full_name: $full_name, phone_no: $phone_no})"`
 }
+
 func InsertVendor(email, phoneNo, fullName string) (string, error) {
 	client := config.GraphqlClient()
 	var variables = map[string]interface{}{
@@ -20,31 +23,37 @@ func InsertVendor(email, phoneNo, fullName string) (string, error) {
 
 	err := client.Mutate(context.Background(), &response, variables)
 	if err != nil {
+
 		fmt.Println("An error occurred:", err)
 		return "", err
 	}
-	VendorId := response.InsertVendorsOne.VendorId
-	return VendorId, nil
+	vendorId := response.InsertVendorsOne.VendorId
+	fmt.Println("Registration Done",vendorId)
+	return vendorId, nil
 }
-
-type VendorByEmail struct {
-	Vendor struct {
-		VendorId string `json:"vendor_id"`
+type vendorByEmailResponse struct {
+	Vendors []struct {
+		vendorId string `graphql:"vendor_id"`
 	} `graphql:"vendors(where: {email: {_eq: $email}})"`
 }
 
 func FindVendor(email string) (string, error) {
+	fmt.Println("am an Email", email)
 	client := config.GraphqlClient()
 	variables := map[string]interface{}{
 		"email": email,
 	}
-	var response VendorByEmail
+	var response vendorByEmailResponse
 
 	err := client.Query(context.Background(), &response, variables)
 	if err != nil {
-		fmt.Println("An error occurred:", err)
+		fmt.Println("An error occurred here:", err)
 		return "", err
 	}
-	VendorId := response.Vendor.VendorId
-	return VendorId, nil
+	if len(response.Vendors) > 0 {
+		vendorId := response.Vendors[0].vendorId
+		return vendorId, nil
+	}
+	return "", nil
 }
+

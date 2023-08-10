@@ -14,21 +14,15 @@ func main() {
 	if err != nil {
 		fmt.Println("Error loading .env file:", err)
 	}
-// read something about gin
 	r := gin.Default()
-
 	r.Use(gin.Recovery())
-// read about something
 	r.Use(cors.Default())
-// 
 	routes := r.Group("/")
-	
 	router.InitializeRoutes(routes)
 	port := os.Getenv("GO_PORT")
 	if port == "" {
 		fmt.Println("Port Not Found")
 		port = "3000"
 	}
-
 	r.Run(":" + port)
 }

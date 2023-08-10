@@ -30,9 +30,8 @@ func RiderSignup(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Please provide all the data"})
 		return
 	}
-	salt := utilities.GenerateSalt()
 
-	hashedPassword, err := utilities.HashPassword(reqBody.Input.Password, salt)
+	hashedPassword, err := utilities.HashPassword(reqBody.Input.Password)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -57,25 +56,6 @@ func RiderSignup(c *gin.Context) {
 	}
 
 	var response Rider
-	// 	if riderResponse == ""{
-	// 		c.JSON(http.StatusBadRequest, gin.H{"message": "Account Already Exists by this Phone Number"})
-	// 		return
-	// 	}
-	// 	fmt.Println("from below")
-
-	//    //unmarshal it conditionally if riderResponse exists then unmarshal it otherwise continue
-	//   // write a code here
-	// 	err = json.Unmarshal([]byte(riderResponse), &response)
-
-	// 	if err != nil {
-	// 		c.JSON(http.StatusBadRequest, gin.H{"message": err})
-	// 		return
-	// 	}
-	// 	fmt.Println("from Here", response)
-	// 	if response.UserID != "" {
-	// 		c.JSON(http.StatusBadRequest, gin.H{"message": "Rider Already Exists"})
-	// 		return
-	// 	}
 
 	if riderResponse != "" {
 		fmt.Println("hhhhhhhhhhhhhhhhhhhhhhhh")
