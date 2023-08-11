@@ -1,33 +1,33 @@
 package actions
 
 import (
+	"context"
 	"fmt"
 	"net/http"
-	"github.com/gin-gonic/gin"
+	"os"
 	"github.com/cloudinary/cloudinary-go"
 	"github.com/cloudinary/cloudinary-go/api/uploader"
+	"github.com/gin-gonic/gin"
 )
 
-
 func FileUpload(c *gin.Context) {
-	type reqBody struct{
-		 Input struct {
-		Name      string `json:"name"`
-		Type      string `json:"type"`
-		Base64Str string `json:"base64str"`
+	type reqBody struct {
+		Input struct {
+			Name      string `json:"name"`
+			Base64Str string `json:"base64str"`
+			Type  string `json:"type"`
+		}
 	}
-}
-var input reqBody
+
+	var input reqBody
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Invalid JSON input",
 		})
 		return
 	}
-
-	result, err := uploadImageToCloudinary(input.Input.Base64Str)
+	result, err := uploadImageToCloudinary(input.Input.Base64Str, input.Input.Name)
 	if err != nil {
-		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -39,19 +39,18 @@ var input reqBody
 	})
 }
 
-func uploadImageToCloudinary(base64str string) (*uploader.UploadResult, error) {
-	cloudinaryURL := "cloudinary://your-cloud-name:your-api-key@your-api-secret"
-	cloudinary.ConfigFromURL(cloudinaryURL)
-
-	uploadParams := uploader.UploadParams{
-		File:      uploader.Base64File(base64str),
-		UploadPreset: "your-upload-preset",
-	}
-
-	result, err := uploader.Upload(uploadParams)
+func uploadImageToCloudinary(base64Data, imageName string) (*uploader.UploadResult, error) {
+	cloudinaryURL := os.Getenv("CLOUDINARY_URL")
+	cloudinaryService, err := cloudinary.NewFromURL(cloudinaryURL)
 	if err != nil {
 		return nil, err
 	}
+	ctx := context.Background()
+	res, err := cloudinaryService.Upload.Upload(ctx, "data:image/jpeg;base64,"+base64Data, uploader.UploadParams{})
+	if err != nil {
+		fmt.Printf("Failed to upload file, %v\n", err)
+		return nil, err
+	}
 
-	return &result, nil
+	return res, nil
 }
