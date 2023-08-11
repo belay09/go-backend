@@ -1,0 +1,13 @@
+table:
+  name: riders
+  schema: public
+array_relationships:
+  - name: rider_address
+    using:
+      manual_configuration:
+        column_mapping:
+          rider_id: user_id
+        insertion_order: null
+        remote_table:
+          name: addresses
+          schema: public

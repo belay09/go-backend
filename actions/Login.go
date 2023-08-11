@@ -8,7 +8,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	// "github.com/dgrijalva/jwt-go"
+	"github.com/vladimiroff/jwt-go/v3"
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,6 +35,8 @@ func Login(c *gin.Context) {
 		RoleName string
 		RoleID   string
 	}
+
+
 	type User struct {
 		UserID   string
 		PhoneNo  string
@@ -68,15 +71,18 @@ func Login(c *gin.Context) {
 	claims := token.Claims.(jwt.MapClaims)
 
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+	claims["iat"] = time.Now().Unix()
 
 	hasuraClaims := map[string]interface{}{
-		"x-hasura-allowed-roles":   []string{"zadmin", "rider", "customer", "vendor"},
-		"x-hasura-default-role":     user.Role.RoleName,
+		"x-hasura-allowed-roles":                          []string{"zadmin", "rider", "customer", "vendor"},
+		"x-hasura-default-role":                           user.Role.RoleName,
 		fmt.Sprintf("x-hasura-%s-id", user.Role.RoleName): user.UserID,
 	}
 
 	claims["https://hasura.io/jwt/claims"] = hasuraClaims
 	tokenString, err := token.SignedString([]byte(os.Getenv("HASURA_GRAPHQL_JWT_SECRET")))
+	
+	
 	if err != nil {
 		fmt.Println("Error:", err)
 		return

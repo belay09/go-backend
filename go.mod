@@ -9,10 +9,9 @@ require (
 	github.com/joho/godotenv v1.5.1
 )
 
-require (
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/golang-jwt/jwt/v5 v5.0.0
-)
+require github.com/dgrijalva/jwt-go v3.2.0+incompatible
+
+require github.com/vladimiroff/jwt-go/v3 v3.2.1 // indirect
 
 require (
 	github.com/bytedance/sonic v1.9.1 // indirect

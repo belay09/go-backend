@@ -16,7 +16,7 @@ services:
     network_mode: host
     image: hasura/graphql-engine:v2.20.0
     restart: always
-    env_file: .env
+    # env_file: .env
     environment:
       HASURA_GRAPHQL_DATABASE_URL: ${POSTGRES_URI}
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"

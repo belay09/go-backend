@@ -1,0 +1,53 @@
+actions:
+  - name: customer_signup
+    definition:
+      kind: synchronous
+      handler: '{{ACTION_BASE_URL}}/customer_signup'
+    permissions:
+      - role: rider
+      - role: vendor
+      - role: zadmin
+      - role: anonymous
+      - role: customer
+  - name: file_upload
+    definition:
+      kind: synchronous
+      handler: '{{ACTION_BASE_URL}}/file_upload'
+  - name: login
+    definition:
+      kind: synchronous
+      handler: '{{ACTION_BASE_URL}}/login'
+    permissions:
+      - role: zadmin
+      - role: vendor
+      - role: customer
+      - role: rider
+      - role: anonymous
+  - name: rider_signup
+    definition:
+      kind: synchronous
+      handler: '{{ACTION_BASE_URL}}/rider_signup'
+    permissions:
+      - role: anonymous
+      - role: zadmin
+      - role: vendor
+      - role: rider
+      - role: customer
+  - name: vendor_signup
+    definition:
+      kind: synchronous
+      handler: '{{ACTION_BASE_URL}}/vendor_signup'
+    permissions:
+      - role: anonymous
+      - role: zadmin
+      - role: vendor
+      - role: rider
+      - role: customer
+custom_types:
+  enums: []
+  input_objects: []
+  objects:
+    - name: login_output
+    - name: signup_output
+    - name: file_upload_output
+  scalars: []
