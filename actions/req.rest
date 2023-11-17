@@ -1,0 +1,63 @@
+### Create a USER 1    
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+  "input": {
+    "email": "oj@exdnfgfgamdple.com",
+    "password": "padsswvvord123"
+  }
+}
+### Create a USER 1
+           
+POST http://localhost:3000/customer_signup
+Content-Type: application/json  
+
+{
+  "input": {
+    "fname": "John Doe", 
+    "lname": "John Doe", 
+    "username": "dfgsfgsdfsgsf",
+    "password": "padsswvvord123",
+    "email": "oj@exfdfdfddsdfgfgamdple.com"
+  }
+}
+
+### Create a USER 2
+POST https://backend-for-all.vercel.app/api/auth/login
+Content-Type: application/json
+
+{
+  "email":"adh",
+  "username": "hhk",
+  "password": "adh"
+}
+###
+
+POST http://localhost:3000/rider_signup
+Content-Type: application/json
+
+
+
+###List USERS
+GET http://localhost:5000/api/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjU5NmVjYTQtOTQ0NS00NmY3LWExNDYtMzg2M2Q1YmQ3YWU0IiwidXNlcl9uYW1lIjoiQm9iIiwidXNlcl9lbWFpbCI6ImJvYkBnbWFpbC5jb20iLCJpYXQiOjE2MjAzMTAzODgsImV4cCI6MTYyMDMxMDQxOH0.ae6yETgMWgsVAwG3e1pssuHDUqjoc0ob2CUWLyKFsEw
+###
+
+POST http://localhost:2001/api/auth/adminlogin
+Content-Type: application/json
+
+{
+  "name":"abu",
+  "password":"abu"
+}
+
+###REFRESH TOKENS
+GET http://localhost:2001/api/auth/refresh_token
+
+###
+
+DELETE http://localhost:5000/api/auth/refresh_token
+###
+
+DELETE http://localhost:5000/api/users

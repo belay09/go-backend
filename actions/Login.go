@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 	"time"
-
+	"strconv"
 	// "github.com/dgrijalva/jwt-go"
 	"github.com/vladimiroff/jwt-go/v3"
 	"github.com/gin-gonic/gin"
@@ -16,7 +16,7 @@ import (
 func Login(c *gin.Context) {
 	var reqBody struct {
 		Input struct {
-			PhoneNo  string `json:"phone_no"`
+			Email  string `json:"email"`
 			Password string `json:"password"`
 		} `json:"input"`
 	}
@@ -26,38 +26,45 @@ func Login(c *gin.Context) {
 		return
 	}
 	input := reqBody.Input
-	if input.PhoneNo == "" || input.Password == "" {
+	if input.Email == "" || input.Password == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Please provide both Phone Number and Password"})
 		return
 	}
 
-	type Role struct {
-		RoleName string
-		RoleID   string
-	}
 
 
 	type User struct {
-		UserID   string
-		PhoneNo  string
-		Status   bool
+		Username   string
+		UserID  int
 		Password string
-		Role     Role
+
 	}
 
 	var user User
-	response, err := utilities.User(input.PhoneNo)
+	response, err := utilities.User(input.Email)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Something went wrong"})
 		return
 	}
+	fmt.Println("hheloo",response)
+	if response =="hi" {
+		c.JSON(http.StatusBadRequest, gin.H{"message":"no accaunt associated with this one"})
+
+	}
+
+
+
+if response !="hi" {
+	
+
 	err = json.Unmarshal([]byte(response), &user)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
+	fmt.Println("thiere")
 
-	if err != nil || user.Password == "" || user.Role.RoleName == "" {
+	if err != nil || user.Password == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Incorrect Credentials"})
 		return
 	}
@@ -69,15 +76,15 @@ func Login(c *gin.Context) {
 
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
-
+	userIDString := strconv.Itoa(user.UserID)
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 	claims["iat"] = time.Now().Unix()
 
 	hasuraClaims := map[string]interface{}{
-		"x-hasura-allowed-roles":                          []string{"zadmin", "rider", "customer", "vendor"},
-		"x-hasura-default-role":                           user.Role.RoleName,
-		fmt.Sprintf("x-hasura-%s-id", user.Role.RoleName): user.UserID,
-	}
+		"x-hasura-allowed-roles":                          []string{"user","admin"},
+		"x-hasura-default-role":                           "user",
+		"x-hasura-user-id": userIDString,
+		}
 
 	claims["https://hasura.io/jwt/claims"] = hasuraClaims
 	tokenString, err := token.SignedString([]byte(os.Getenv("HASURA_GRAPHQL_JWT_SECRET")))
@@ -89,4 +96,5 @@ func Login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"access_token": tokenString})
+}
 }

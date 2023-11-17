@@ -8,6 +8,8 @@ import (
 	"github.com/cloudinary/cloudinary-go"
 	"github.com/cloudinary/cloudinary-go/api/uploader"
 	"github.com/gin-gonic/gin"
+	// "bytes"
+	// "encoding/base64"
 )
 
 func FileUpload(c *gin.Context) {
@@ -33,6 +35,7 @@ func FileUpload(c *gin.Context) {
 		})
 		return
 	}
+	// fmt.Println(result)  
 
 	c.JSON(http.StatusOK, gin.H{
 		"image_url": result.SecureURL,
